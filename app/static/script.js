@@ -320,8 +320,39 @@ function updateStats(stats) {
 }
 
 function processLibraryData(data) {
-    // This would handle the actual library processing
     addConsoleMessage('Processing library data...', 'info');
+    
+    if (data && data.data) {
+        // Update stats with real data
+        updateStats({
+            tracks: data.data.tracks.toLocaleString(),
+            artists: data.data.artists.toLocaleString(),
+            albums: data.data.albums.toLocaleString(),
+            playlists: data.data.playlists.toLocaleString(),
+            genres: data.data.genres.toLocaleString()
+        });
+        
+        // Show additional statistics
+        addConsoleMessage(`📊 Library Statistics:`, 'info');
+        addConsoleMessage(`🎵 Tracks: ${data.data.tracks.toLocaleString()}`, 'info');
+        addConsoleMessage(`🎤 Artists: ${data.data.artists.toLocaleString()}`, 'info');
+        addConsoleMessage(`💿 Albums: ${data.data.albums.toLocaleString()}`, 'info');
+        addConsoleMessage(`📋 Playlists: ${data.data.playlists.toLocaleString()}`, 'info');
+        addConsoleMessage(`🏷️ Genres: ${data.data.genres.toLocaleString()}`, 'info');
+        
+        if (data.data.total_size > 0) {
+            const sizeGB = (data.data.total_size / (1024 * 1024 * 1024)).toFixed(2);
+            addConsoleMessage(`💾 Total Size: ${sizeGB} GB`, 'info');
+        }
+        
+        if (data.data.total_time > 0) {
+            const hours = Math.floor(data.data.total_time / 3600000);
+            const minutes = Math.floor((data.data.total_time % 3600000) / 60000);
+            addConsoleMessage(`⏱️ Total Duration: ${hours}h ${minutes}m`, 'info');
+        }
+        
+        addConsoleMessage(`⚡ Processing time: ${data.data.processing_time}s`, 'info');
+    }
     
     // Show progress section
     const progressSection = document.getElementById('progress-section');
@@ -330,7 +361,7 @@ function processLibraryData(data) {
         progressSection.scrollIntoView({ behavior: 'smooth' });
     }
     
-    // Simulate processing
+    // Simulate processing for UI effect
     simulateProgress();
 }
 
