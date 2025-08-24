@@ -1,8 +1,21 @@
+<div align="center">
+  <img src="logo.png" alt="Apple Sider Logo" width="200" height="200">
+</div>
+
+
+<div align="center">
+  <img src="logo.png" alt="Apple Sider Logo" width="200" height="200">
+</div>
+
+<div align="center">
+  <img src="logo.png" alt="Apple Sider Logo" width="200" height="200">
+</div>
+
 # Apple Sider
 
 🍎 **One Click To Scrape Your Entire Library as MP3's**
 
-A simple self-hosted Docker application that lets you upload your Apple Music Library.xml file and automatically downloads your entire music library as high-quality MP3s using the [CLI-Music-Downloader](https://github.com/yourusername/CLI-Music-Downloader).
+A simple self-hosted Docker application that lets you upload your Apple Music Library.xml file and automatically downloads your entire music library as high-quality MP3s using the [CLI-Music-Downloader](https://github.com/jordolang/CLI-Music-Downloader).
 
 ## ✨ Features
 
@@ -17,22 +30,33 @@ A simple self-hosted Docker application that lets you upload your Apple Music Li
 - 🔄 **Error handling** - Automatic retries, failed download tracking, and recovery
 - 📡 **WebSocket streaming** - Real-time console output and status updates
 
-## 🚀 Quick Start
+## 🚀 Installation
 
-### Using the Start Script (Recommended)
+### Method 1: pip install (Recommended for CLI)
+
+```bash
+# Install Apple Sider
+pip install apple-sider
+
+# Install and set up
+apple-sider install
+
+# Start the service
+apple-sider start
+```
+
+### Method 2: Git Clone + Start Script
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/Apple-Sider.git
+git clone https://github.com/jordolang/Apple-Sider.git
 cd Apple-Sider
 
 # Start Apple Sider (builds and runs automatically)
 ./start.sh
 ```
 
-That's it! Apple Sider will be available at http://localhost:8080
-
-### Manual Docker Setup
+### Method 3: Manual Docker Setup
 
 ```bash
 # Build and run with Docker Compose
@@ -41,6 +65,44 @@ docker-compose up -d
 # Or with plain Docker
 docker build -t apple-sider .
 docker run -p 8080:8080 -v ~/Music/Apple-Sider:/app/downloads apple-sider
+```
+
+That's it! Apple Sider will be available at http://localhost:8080
+
+## 📋 CLI Usage
+
+After installing with pip, you can use the `apple-sider` command:
+
+```bash
+# Install Apple Sider
+apple-sider install
+
+# Start services
+apple-sider start
+
+# Check status
+apple-sider status
+
+# View logs
+apple-sider logs
+
+# Stop services
+apple-sider stop
+
+# Restart services
+apple-sider restart
+
+# Update to latest version
+apple-sider update
+
+# Show configuration
+apple-sider config show
+
+# Edit configuration
+apple-sider config edit
+
+# Get help
+apple-sider --help
 ```
 
 ## 📋 How to Use
@@ -86,25 +148,60 @@ Apple Sider can be configured through the web interface or by editing `config/co
 
 ```
 Apple-Sider/
+├── apple_sider/           # Python package
+│   ├── __init__.py       # Package initialization
+│   ├── core.py           # Core application logic
+│   └── cli.py            # Command-line interface
 ├── app/
-│   ├── app.py              # Flask backend application
-│   ├── parser.py           # Library.xml parser
-│   ├── config.py           # Configuration management
-│   ├── downloader.py       # Download queue manager
+│   ├── app.py            # Flask backend application
+│   ├── parser.py         # Library.xml parser
+│   ├── config.py         # Configuration management
+│   ├── downloader.py     # Download queue manager
 │   └── static/
-│       ├── index.html      # Single-page web interface
-│       ├── style.css       # Apple-inspired styling
-│       └── app.js          # Frontend JavaScript
+│       ├── index.html    # Single-page web interface
+│       ├── style.css     # Apple-inspired styling
+│       └── app.js        # Frontend JavaScript
 ├── config/
-│   └── config.json         # Runtime configuration
-├── docker-compose.yml      # Docker Compose setup
-├── Dockerfile              # Container definition
-├── requirements.txt        # Python dependencies
-├── config.example.json     # Configuration template
-└── start.sh               # Easy start script
+│   └── config.json       # Runtime configuration
+├── docker-compose.yml    # Docker Compose setup
+├── Dockerfile            # Container definition
+├── requirements.txt      # Python dependencies
+├── setup.py             # pip package setup
+├── pyproject.toml       # Modern Python packaging
+├── config.example.json  # Configuration template
+└── start.sh             # Enhanced start script
 ```
 
 ## 🔧 Management Commands
+
+### Using the CLI (after pip install)
+
+```bash
+# Start Apple Sider
+apple-sider start
+
+# Check status
+apple-sider status
+
+# View logs in real-time
+apple-sider logs
+
+# Stop the service
+apple-sider stop
+
+# Restart after config changes
+apple-sider restart
+
+# Update to latest version
+apple-sider update
+
+# Configuration management
+apple-sider config show
+apple-sider config edit
+apple-sider config reset
+```
+
+### Using the Start Script
 
 ```bash
 # Start Apple Sider
@@ -122,12 +219,29 @@ Apple-Sider/
 # Update to latest version
 ./start.sh update
 
+# Show status and health
+./start.sh status
+
 # Open shell in container for debugging
 ./start.sh shell
 
 # Stop and remove everything
 ./start.sh down
+
+# Clean up all data
+./start.sh clean
 ```
+
+## 🌍 Cross-Platform Support
+
+Apple Sider works on:
+
+- ✅ **macOS** (Intel & Apple Silicon)
+- ✅ **Linux** (Ubuntu, Debian, CentOS, RHEL, Fedora)
+- ✅ **Windows Subsystem for Linux** (WSL)
+- ✅ **Docker Desktop** environments
+
+The enhanced start script automatically detects your platform and provides appropriate installation instructions.
 
 ## 📂 Output Structure
 
@@ -169,10 +283,10 @@ Apple-Sider/
 **Web interface not loading:**
 ```bash
 # Check if container is running
-docker-compose ps
+apple-sider status
 
 # Check logs for errors
-./start.sh logs
+apple-sider logs
 ```
 
 **Downloads failing:**
@@ -187,9 +301,23 @@ docker-compose ps
 - Use fewer concurrent downloads for stability
 
 ### Reset Everything
+
+#### Using pip installation:
+```bash
+# Stop services
+apple-sider stop
+
+# Reset configuration
+apple-sider config reset
+
+# Start fresh
+apple-sider start
+```
+
+#### Using git clone:
 ```bash
 # Stop and remove all containers and data
-./start.sh down
+./start.sh clean
 rm -rf config/
 rm -rf ~/Music/Apple-Sider/
 
@@ -199,38 +327,24 @@ rm -rf ~/Music/Apple-Sider/
 
 ## 📊 Performance
 
-- **Parsing speed**: ~1000 tracks per second
-- **Download speed**: Limited by CLI-Music-Downloader and network
-- **Memory usage**: ~50-100MB base + ~10MB per concurrent download
-- **Storage**: Original Library.xml size + downloaded MP3s
+- **Small libraries** (< 1000 tracks): ~30 minutes
+- **Medium libraries** (1000-5000 tracks): ~2-4 hours
+- **Large libraries** (> 5000 tracks): ~6+ hours
 
-## 🛠️ Development
-
-### Local Development Setup
-```bash
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Run development server
-cd app
-python app.py
-```
-
-### Building Custom Images
-```bash
-# Build with custom CLI-Music-Downloader
-docker build --build-arg CLI_REPO_URL=https://github.com/your/fork.git -t apple-sider .
-```
+Performance varies based on:
+- Network speed
+- CPU/RAM resources
+- Concurrent download settings
+- YouTube availability
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes and test thoroughly
+4. Commit your changes: `git commit -am 'Add feature'`
+5. Push to the branch: `git push origin feature-name`
+6. Submit a pull request
 
 ## 📄 License
 
@@ -238,16 +352,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [CLI-Music-Downloader](https://github.com/yourusername/CLI-Music-Downloader) for the core downloading functionality
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for reliable audio extraction
-- [Flask](https://flask.palletsprojects.com/) and [Flask-SocketIO](https://flask-socketio.readthedocs.io/) for the web framework
-- Apple for the Library.xml export format
-- The open-source community for inspiration and tools
+- [CLI-Music-Downloader](https://github.com/jordolang/CLI-Music-Downloader) - The powerful backend that makes this possible
+- [InstantMusic](https://github.com/yask123/InstantMusic) - Original inspiration for music downloading
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Excellent YouTube downloading capabilities
+- [MusicBrainz](https://musicbrainz.org/) - Comprehensive music metadata database
 
-## ⭐ Star History
+## ⭐ Support
 
-If this project helped you, please consider giving it a star! ⭐
+If you find Apple Sider useful, please:
+- ⭐ Star this repository
+- 🐛 Report issues on GitHub
+- 💡 Suggest new features
+- 🔄 Share with others who might find it helpful
 
 ---
 
-**Made with ❤️ for music lovers who appreciate good tooling and want to own their music collection**
+**Happy downloading! 🎵**

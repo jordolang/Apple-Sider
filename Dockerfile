@@ -19,7 +19,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Clone and setup CLI-Music-Downloader
-RUN git clone https://github.com/yourusername/CLI-Music-Downloader.git /app/cli-music-downloader \
+RUN git clone https://github.com/jordolang/CLI-Music-Downloader.git /app/cli-music-downloader \
     && cd /app/cli-music-downloader \
     && pip install -r requirements.txt \
     && chmod +x bin/download_music \

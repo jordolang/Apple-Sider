@@ -1,0 +1,103 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apple-sider"
+version = "1.0.0"
+authors = [
+    {name = "Jordan Lang", email = "contact@jordolang.com"},
+]
+description = "Web-based music downloader interface with CLI-Music-Downloader integration"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+]
+keywords = [
+    "music", "downloader", "youtube", "mp3", "web-interface", 
+    "docker", "cli", "audio", "metadata", "album-art"
+]
+dependencies = [
+    "requests>=2.25.0",
+    "urllib3>=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=21.0",
+    "flake8>=3.8",
+    "mypy>=0.812",
+]
+all = [
+    "flask>=3.0.0",
+    "flask-socketio>=5.3.0",
+    "python-socketio>=5.10.0",
+    "python-engineio>=4.8.0",
+    "werkzeug>=3.0.0",
+]
+
+[project.scripts]
+apple-sider = "apple_sider.cli:main"
+applesider = "apple_sider.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jordolang/Apple-Sider"
+Documentation = "https://github.com/jordolang/Apple-Sider#readme"
+Repository = "https://github.com/jordolang/Apple-Sider.git"
+"Bug Tracker" = "https://github.com/jordolang/Apple-Sider/issues"
+
+[tool.setuptools]
+packages = ["apple_sider"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+apple_sider = ["templates/*", "static/*", "config/*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

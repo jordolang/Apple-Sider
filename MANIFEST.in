@@ -1,0 +1,41 @@
+# Include documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Include configuration files
+include *.json
+include config/*.json
+include config.example.json
+
+# Include Docker and deployment files
+include Dockerfile
+include docker-compose.yml
+include start.sh
+include requirements.txt
+
+# Include application files
+recursive-include app *.py
+recursive-include app *.html
+recursive-include app *.css
+recursive-include app *.js
+recursive-include app *.json
+
+# Include templates and static files if they exist
+recursive-include apple_sider/templates *
+recursive-include apple_sider/static *
+
+# Include scripts and utilities
+recursive-include scripts *.sh
+recursive-include scripts *.py
+
+# Exclude development and temporary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.so
+global-exclude .git*
+global-exclude *.tmp
+global-exclude *.log
