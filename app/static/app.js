@@ -242,9 +242,9 @@ class AppleSider {
         
         try {
             const formData = new FormData();
-            formData.append('library', file);
+            formData.append('file', file);
             
-            const response = await fetch('/api/upload', {
+            const response = await fetch('/upload', {
                 method: 'POST',
                 body: formData
             });
@@ -254,10 +254,10 @@ class AppleSider {
             if (result.success) {
                 this.uploadedLibrary = result;
                 this.showLibraryInfo(result);
-                this.addConsoleLine(`✅ Successfully parsed ${result.valid_tracks} valid tracks`, 'success');
+                this.addConsoleLine(`✅ Successfully parsed ${result.data.tracks} tracks`, 'success');
             } else {
-                this.showError(result.error);
-                this.addConsoleLine(`❌ Error: ${result.error}`, 'error');
+                this.showError(result.error || 'Unknown error occurred');
+                this.addConsoleLine(`❌ Error: ${result.error || 'Unknown error'}`, 'error');
             }
         } catch (error) {
             this.showError(`Failed to process file: ${error.message}`);
@@ -267,10 +267,15 @@ class AppleSider {
         }
     }
     
-    showLibraryInfo(data) {
-        document.getElementById('totalTracks').textContent = data.total_tracks;
-        document.getElementById('validTracks').textContent = data.valid_tracks;
-        document.getElementById('estimatedHours').textContent = data.estimated_hours;
+    showLibraryInfo(result) {
+        // Use the correct data structure from Flask response
+        const tracks = result.data.tracks || 0;
+        const artists = result.data.artists || 0;
+        const estimatedHours = Math.ceil(tracks / 100); // Rough estimate: 100 tracks per hour
+        
+        document.getElementById('totalTracks').textContent = tracks;
+        document.getElementById('validTracks').textContent = tracks; // For now, assume all tracks are valid
+        document.getElementById('estimatedHours').textContent = estimatedHours;
         
         document.getElementById('uploadSection').style.display = 'none';
         document.getElementById('libraryInfo').style.display = 'block';
@@ -516,7 +521,93 @@ class AppleSider {
     showLoading(show) {
         document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
     }
-}
+    
+    // Add missing methods that are referenced but not implemented
+    triggerFileInput() {
+        document.getElementById('fileInput').click();
+    }
+    
+    handleFileDrop(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.name.endsWith('.xml')) {
+                this.processFile(file);
+            } else {
+                this.showError('Please drop a valid XML file');
+            }
+        }
+    }
+    
+    animateUploadZone(action) {
+        // Simple animation placeholder - can be enhanced later
+        const zone = document.getElementById('uploadZone');
+        if (action === 'dragenter') {
+            zone.style.transform = 'scale(1.02)';
+        } else {
+            zone.style.transform = 'scale(1)';
+        }
+    }
+    
+    performHealthCheck() {
+        // Check if the backend is responding
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'healthy') {
+                    this.addConsoleLine('✅ Backend health check passed', 'success');
+                } else {
+                    this.addConsoleLine('⚠️ Backend health check failed', 'warning');
+                }
+            })
+            .catch(error => {
+                this.addConsoleLine('❌ Could not connect to backend', 'error');
+            });
+    }
+    
+    showNotification(message, type) {
+        // Simple notification system
+        console.log(`[${type.toUpperCase()}] ${message}`);
+        this.addConsoleLine(`📢 ${message}`, type);
+    }
+    
+    setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        this.currentTheme = theme;
+        localStorage.setItem('apple-sider-theme', theme);
+    }
+    
+    toggleTheme() {
+        const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        this.setTheme(newTheme);
+        this.addConsoleLine(`🎨 Theme switched to ${newTheme}`, 'info');
+    }
+    
+    initializeAnimations() {
+        // Placeholder for animations
+        this.addConsoleLine('🎬 Animations initialized', 'info');
+    }
+    
+    adjustUIForScreenSize() {
+        // Responsive UI adjustments
+        const width = window.innerWidth;
+        if (width < 768) {
+            document.body.classList.add('mobile');
+        } else {
+            document.body.classList.remove('mobile');
+        }
+    }
+    
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
 
     /**
      * Set up download control buttons and progress tracking
