@@ -5,7 +5,7 @@ services:
     build: .
     container_name: apple-sider
     ports:
-      - "8080:8080"
+      - "8082:8080"
     volumes:
       # Mount music directory for downloads
       - ~/Music/Apple-Sider:/app/downloads

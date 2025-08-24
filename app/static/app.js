@@ -1,64 +1,230 @@
-// Apple Sider - JavaScript Application
+/* ============================================================================
+   Apple Sider - Next-Gen JavaScript Application
+   Modern ES6+ with Advanced Animations & Features
+   ============================================================================ */
 
 class AppleSider {
     constructor() {
+        // Core Properties
         this.websocket = null;
         this.autoScroll = true;
         this.uploadedLibrary = null;
         this.currentStatus = null;
         this.progressInterval = null;
+        this.animationFrame = null;
         
+        // Theme & UI State
+        this.currentTheme = 'light';
+        this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        this.isOnline = navigator.onLine;
+        
+        // Animation Controllers
+        this.intersectionObserver = null;
+        this.particleSystem = null;
+        this.soundEnabled = false;
+        
+        // Keyboard Shortcuts
+        this.shortcuts = new Map([
+            ['KeyU', { action: 'focusUpload', ctrl: true, description: 'Focus upload area' }],
+            ['KeyT', { action: 'toggleTheme', ctrl: true, description: 'Toggle theme' }],
+            ['KeyS', { action: 'toggleSettings', ctrl: true, description: 'Toggle settings' }],
+            ['KeyC', { action: 'clearConsole', ctrl: true, shift: true, description: 'Clear console' }],
+            ['Escape', { action: 'closeFocus', description: 'Close focused element' }]
+        ]);
+        
+        // Performance Metrics
+        this.performanceMetrics = {
+            uploadStart: null,
+            uploadEnd: null,
+            downloadStart: null,
+            downloadEnd: null
+        };
+        
+        // Initialize the application
         this.init();
     }
     
-    init() {
-        this.setupEventListeners();
-        this.loadSettings();
-        this.connectWebSocket();
-        this.addConsoleLine('🍎 Apple Sider Ready - Upload your Library.xml to begin', 'welcome');
+    /**
+     * Initialize the application
+     */
+    async init() {
+        try {
+            // Detect system preferences
+            this.detectSystemPreferences();
+            
+            // Initialize theme system
+            this.initializeTheme();
+            
+            // Setup event listeners
+            this.setupEventListeners();
+            
+            // Initialize animations
+            if (!this.reducedMotion) {
+                this.initializeAnimations();
+                this.initializeParticleSystem();
+            }
+            
+            // Setup observers
+            this.setupIntersectionObserver();
+            
+            // Load user settings
+            this.loadSettings();
+            
+            // Connect to WebSocket
+            this.connectWebSocket();
+            
+            // Initialize keyboard shortcuts
+            this.initializeKeyboardShortcuts();
+            
+            // Setup PWA features
+            this.initializePWA();
+            
+            // Add welcome message
+            this.addConsoleLine('🍎 Apple Sider Ready - Upload your Library.xml to begin', 'welcome');
+            
+            // Perform startup health check
+            this.performHealthCheck();
+            
+        } catch (error) {
+            console.error('Failed to initialize Apple Sider:', error);
+            this.showNotification('Failed to initialize application', 'error');
+        }
     }
     
+    /**
+     * Detect system preferences and capabilities
+     */
+    detectSystemPreferences() {
+        // Detect color scheme preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        this.currentTheme = prefersDark.matches ? 'dark' : 'light';
+        
+        // Listen for changes
+        prefersDark.addEventListener('change', (e) => {
+            if (!localStorage.getItem('apple-sider-theme-override')) {
+                this.setTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+        
+        // Detect reduced motion preference
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        this.reducedMotion = prefersReducedMotion.matches;
+        
+        prefersReducedMotion.addEventListener('change', (e) => {
+            this.reducedMotion = e.matches;
+            if (e.matches && this.particleSystem) {
+                this.particleSystem.destroy();
+            }
+        });
+        
+        // Detect network status
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.showNotification('Connection restored', 'success');
+        });
+        
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+            this.showNotification('Connection lost - working offline', 'warning');
+        });
+    }
+    
+    /**
+     * Initialize theme system
+     */
+    initializeTheme() {
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('apple-sider-theme');
+        if (savedTheme) {
+            this.currentTheme = savedTheme;
+        }
+        
+        this.setTheme(this.currentTheme);
+        
+        // Setup theme toggle button
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => this.toggleTheme());
+        }
+    }
+    
+    /**
+     * Setup all event listeners
+     */
     setupEventListeners() {
-        // File upload
+        // File upload with enhanced drag & drop
+        this.setupFileUpload();
+        
+        // Download controls with improved UX
+        this.setupDownloadControls();
+        
+        // Settings with real-time validation
+        this.setupSettings();
+        
+        // Console controls
+        this.setupConsoleControls();
+        
+        // Window events
+        this.setupWindowEvents();
+    }
+    
+    /**
+     * Setup enhanced file upload with visual feedback
+     */
+    setupFileUpload() {
         const fileInput = document.getElementById('fileInput');
         const uploadZone = document.getElementById('uploadZone');
         
+        if (!fileInput || !uploadZone) return;
+        
+        // File input change
         fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
         
-        // Drag and drop
-        uploadZone.addEventListener('dragover', (e) => {
+        // Enhanced drag and drop
+        let dragCounter = 0;
+        
+        uploadZone.addEventListener('dragenter', (e) => {
             e.preventDefault();
+            dragCounter++;
             uploadZone.classList.add('dragover');
+            this.animateUploadZone('dragenter');
         });
         
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
+        uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter === 0) {
+                uploadZone.classList.remove('dragover');
+                this.animateUploadZone('dragleave');
+            }
+        });
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
         });
         
         uploadZone.addEventListener('drop', (e) => {
             e.preventDefault();
+            dragCounter = 0;
             uploadZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].name.endsWith('.xml')) {
-                this.processFile(files[0]);
+            
+            const files = Array.from(e.dataTransfer.files);
+            this.handleFileDrop(files);
+        });
+        
+        // Click to upload
+        uploadZone.addEventListener('click', () => {
+            this.triggerFileInput();
+        });
+        
+        // Keyboard accessibility
+        uploadZone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.triggerFileInput();
             }
         });
-        
-        uploadZone.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        // Download control
-        document.getElementById('startDownload').addEventListener('click', () => this.startDownload());
-        document.getElementById('pauseBtn').addEventListener('click', () => this.pauseDownload());
-        document.getElementById('retryBtn').addEventListener('click', () => this.retryFailed());
-        document.getElementById('clearBtn').addEventListener('click', () => this.clearQueue());
-        
-        // Settings
-        document.getElementById('downloadLocation').addEventListener('change', () => this.saveSettings());
-        document.getElementById('folderStructure').addEventListener('change', () => this.saveSettings());
-        document.getElementById('concurrentDownloads').addEventListener('change', () => this.saveSettings());
-        document.getElementById('metadataSource').addEventListener('change', () => this.saveSettings());
     }
     
     handleFileUpload(event) {
@@ -352,14 +518,524 @@ class AppleSider {
     }
 }
 
-// Global functions for HTML onclick handlers
-function toggleSettings() {
-    const content = document.getElementById('settingsContent');
-    const toggle = document.getElementById('settingsToggle');
+    /**
+     * Set up download control buttons and progress tracking
+     */
+    setupDownloadControls() {
+        // Download control buttons
+        const startDownloadBtn = document.getElementById('startDownload');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        
+        if (startDownloadBtn) {
+            startDownloadBtn.addEventListener('click', () => this.startDownload());
+        }
+        
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => {
+                const isPaused = pauseBtn.getAttribute('aria-pressed') === 'true';
+                pauseBtn.setAttribute('aria-pressed', !isPaused);
+                
+                if (isPaused) {
+                    // Resume downloads
+                    this.resumeDownload();
+                    pauseBtn.querySelector('.button-text').textContent = 'Pause';
+                    pauseBtn.querySelector('.button-icon').textContent = '⏸️';
+                } else {
+                    // Pause downloads
+                    this.pauseDownload();
+                    pauseBtn.querySelector('.button-text').textContent = 'Resume';
+                    pauseBtn.querySelector('.button-icon').textContent = '▶️';
+                }
+            });
+        }
+        
+        if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+                this.playSoundEffect('click');
+                this.retryFailed();
+            });
+        }
+        
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                // Use custom confirmation dialog instead of built-in confirm
+                this.showConfirmDialog(
+                    'Clear Download Queue', 
+                    'Are you sure you want to clear the entire download queue? This action cannot be undone.',
+                    () => this.clearQueue(),
+                    'Clear Queue', 'Cancel'
+                );
+            });
+        }
+    }
     
-    content.classList.toggle('open');
-    toggle.classList.toggle('open');
-}
+    /**
+     * Setup settings controls with improved interactions
+     */
+    setupSettings() {
+        // Settings fields with real-time validation
+        const downloadLocation = document.getElementById('downloadLocation');
+        const folderStructure = document.getElementById('folderStructure');
+        const concurrentDownloads = document.getElementById('concurrentDownloads');
+        const metadataSource = document.getElementById('metadataSource');
+        
+        // Settings details/summary toggle behavior
+        const settingsToggle = document.getElementById('settingsToggle');
+        if (settingsToggle) {
+            settingsToggle.addEventListener('click', () => {
+                const details = settingsToggle.closest('details');
+                if (details) {
+                    // Update aria-expanded attribute
+                    const isExpanded = details.hasAttribute('open');
+                    settingsToggle.setAttribute('aria-expanded', !isExpanded);
+                    
+                    // Play animation/sound
+                    if (!this.reducedMotion) {
+                        this.animateSettingsToggle(!isExpanded);
+                    }
+                    
+                    if (this.soundEnabled) {
+                        this.playSoundEffect('toggle');
+                    }
+                }
+            });
+        }
+        
+        // Input validation and autosave
+        if (downloadLocation) {
+            downloadLocation.addEventListener('input', (e) => this.validatePathInput(e.target));
+            downloadLocation.addEventListener('change', () => this.saveSettings());
+        }
+        
+        if (folderStructure) {
+            folderStructure.addEventListener('change', () => {
+                this.saveSettings();
+                this.showStructurePreview(folderStructure.value);
+            });
+        }
+        
+        if (concurrentDownloads) {
+            // Validate numeric input with min/max
+            concurrentDownloads.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                if (isNaN(value) || value < 1) {
+                    e.target.value = 1;
+                } else if (value > 10) {
+                    e.target.value = 10;
+                }
+            });
+            concurrentDownloads.addEventListener('change', () => this.saveSettings());
+        }
+        
+        if (metadataSource) {
+            metadataSource.addEventListener('change', () => this.saveSettings());
+        }
+        
+        // Save and reset buttons
+        const saveSettingsBtn = document.querySelector('[data-testid="save-settings"]');
+        const resetSettingsBtn = document.querySelector('[data-testid="reset-settings"]');
+        
+        if (saveSettingsBtn) {
+            saveSettingsBtn.addEventListener('click', () => this.saveSettings());
+        }
+        
+        if (resetSettingsBtn) {
+            resetSettingsBtn.addEventListener('click', () => this.resetSettings());
+        }
+    }
+    
+    /**
+     * Setup console controls with enhanced functionality
+     */
+    setupConsoleControls() {
+        const clearConsoleBtn = document.querySelector('[data-testid="clear-console"]');
+        const toggleAutoScrollBtn = document.querySelector('[data-testid="toggle-autoscroll"]');
+        const consoleOutput = document.getElementById('console');
+        
+        if (clearConsoleBtn) {
+            clearConsoleBtn.addEventListener('click', () => this.clearConsole());
+        }
+        
+        if (toggleAutoScrollBtn) {
+            toggleAutoScrollBtn.addEventListener('click', () => this.toggleAutoScroll());
+        }
+        
+        // Make console searchable with Ctrl+F support
+        if (consoleOutput) {
+            // Enable text selection
+            consoleOutput.addEventListener('mousedown', (e) => {
+                // Allow text selection when holding shift
+                if (e.shiftKey) {
+                    e.stopPropagation();
+                }
+            });
+            
+            // Double-click to copy line
+            consoleOutput.addEventListener('dblclick', (e) => {
+                const line = e.target.closest('.console-line');
+                if (line) {
+                    this.copyToClipboard(line.textContent);
+                    this.showNotification('Line copied to clipboard', 'info');
+                }
+            });
+        }
+    }
+    
+    /**
+     * Setup global window event listeners
+     */
+    setupWindowEvents() {
+        // Listen for before unload to warn about active downloads
+        window.addEventListener('beforeunload', (e) => {
+            if (this.currentStatus && (this.currentStatus.active > 0 || this.currentStatus.queued > 0)) {
+                // Show warning before leaving page
+                const message = 'Downloads are still in progress. Are you sure you want to leave?';
+                e.returnValue = message;
+                return message;
+            }
+        });
+        
+        // Listen for visibility change to pause updates when tab is inactive
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Reduce update frequency when tab is not visible
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = setInterval(() => this.updateProgress(), 10000); // Update every 10s
+                }
+            } else {
+                // Resume normal update frequency when tab is visible again
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = setInterval(() => this.updateProgress(), 2000); // Update every 2s
+                }
+                this.updateProgress(); // Immediate update when returning to tab
+            }
+        });
+        
+        // Listen for resize events to reposition elements
+        window.addEventListener('resize', this.debounce(() => {
+            // Adjust UI based on screen size
+            this.adjustUIForScreenSize();
+        }, 250));
+        
+        // Initial UI adjustment
+        this.adjustUIForScreenSize();
+    }
+    
+    /**
+     * Set up the Intersection Observer for scroll animations
+     */
+    setupIntersectionObserver() {
+        if (!window.IntersectionObserver || this.reducedMotion) return;
+        
+        this.intersectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Apply animation based on data-aos attribute
+                    const el = entry.target;
+                    const animation = el.dataset.aos;
+                    const delay = el.dataset.aosDelay || 0;
+                    
+                    if (animation) {
+                        setTimeout(() => {
+                            el.style.opacity = '1';
+                            el.style.transform = 'translateY(0)';
+                            el.style.transition = `opacity 0.6s ease, transform 0.6s ease`;
+                        }, delay);
+                        
+                        // Unobserve after animating
+                        this.intersectionObserver.unobserve(el);
+                    }
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        // Observe elements with data-aos attribute
+        document.querySelectorAll('[data-aos]').forEach(el => {
+            el.style.opacity = '0';
+            
+            // Set initial transform based on animation type
+            const animation = el.dataset.aos;
+            if (animation === 'fade-in') {
+                el.style.transform = 'translateY(0)';
+            } else if (animation === 'slide-up') {
+                el.style.transform = 'translateY(30px)';
+            } else if (animation === 'slide-down') {
+                el.style.transform = 'translateY(-30px)';
+            } else if (animation === 'slide-left') {
+                el.style.transform = 'translateX(30px)';
+            } else if (animation === 'slide-right') {
+                el.style.transform = 'translateX(-30px)';
+            }
+            
+            this.intersectionObserver.observe(el);
+        });
+    }
+    
+    /**
+     * Initialize keyboard shortcuts
+     */
+    initializeKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Don't handle shortcuts when focus is in input elements
+            if (e.target.matches('input, textarea, select')) return;
+            
+            this.shortcuts.forEach((shortcut, key) => {
+                const ctrlMatch = shortcut.ctrl ? e.ctrlKey : true;
+                const shiftMatch = shortcut.shift ? e.shiftKey : true;
+                const altMatch = shortcut.alt ? e.altKey : true;
+                
+                if (e.code === key && ctrlMatch && shiftMatch && altMatch) {
+                    e.preventDefault();
+                    
+                    // Execute the shortcut action
+                    switch (shortcut.action) {
+                        case 'focusUpload':
+                            this.focusElement('uploadZone');
+                            break;
+                        case 'toggleTheme':
+                            this.toggleTheme();
+                            break;
+                        case 'toggleSettings':
+                            this.toggleSettings();
+                            break;
+                        case 'clearConsole':
+                            this.clearConsole();
+                            break;
+                        case 'closeFocus':
+                            this.handleEscapeKey();
+                            break;
+                    }
+                }
+            });
+        });
+    }
+    
+    /**
+     * Initialize basic PWA features
+     */
+    initializePWA() {
+        // Check if the browser supports service workers
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }).catch(error => {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
+        
+        // Listen for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Store the event so it can be triggered later
+            this.deferredPrompt = e;
+            // Show the install button or other UI element
+            this.showInstallPrompt();
+        });
+    }
+    
+    /**
+     * Initialize the particle system for visual effects
+     */
+    initializeParticleSystem() {
+        // Skip if reduced motion is enabled
+        if (this.reducedMotion) return;
+        
+        // Initialize particle systems for animations
+        this.particleSystem = {
+            particles: [],
+            canvas: null,
+            ctx: null,
+            initialized: false,
+            targetElement: null,
+            
+            init: (targetId) => {
+                // Create canvas dynamically
+                const target = document.getElementById(targetId);
+                if (!target) return false;
+                
+                this.particleSystem.targetElement = target;
+                
+                const canvas = document.createElement('canvas');
+                canvas.className = 'particle-canvas';
+                canvas.style.position = 'absolute';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.pointerEvents = 'none';
+                canvas.style.zIndex = '1';
+                
+                // Position the target element relatively if it's not already
+                const targetPosition = getComputedStyle(target).position;
+                if (targetPosition === 'static') {
+                    target.style.position = 'relative';
+                }
+                
+                target.appendChild(canvas);
+                
+                this.particleSystem.canvas = canvas;
+                this.particleSystem.ctx = canvas.getContext('2d');
+                
+                // Set canvas size to match target
+                this.particleSystem.resize();
+                
+                // Listen for resize events
+                window.addEventListener('resize', () => this.particleSystem.resize());
+                
+                this.particleSystem.initialized = true;
+                return true;
+            },
+            
+            resize: () => {
+                if (!this.particleSystem.canvas || !this.particleSystem.targetElement) return;
+                
+                const target = this.particleSystem.targetElement;
+                const rect = target.getBoundingClientRect();
+                
+                this.particleSystem.canvas.width = rect.width;
+                this.particleSystem.canvas.height = rect.height;
+            },
+            
+            animate: () => {
+                if (!this.particleSystem.initialized) return;
+                
+                const ctx = this.particleSystem.ctx;
+                const canvas = this.particleSystem.canvas;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw particles
+                for (let i = 0; i < this.particleSystem.particles.length; i++) {
+                    const particle = this.particleSystem.particles[i];
+                    
+                    // Update position
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    
+                    // Update opacity/size based on lifespan
+                    particle.life -= particle.decay;
+                    
+                    if (particle.life <= 0) {
+                        // Remove dead particles
+                        this.particleSystem.particles.splice(i, 1);
+                        i--;
+                        continue;
+                    }
+                    
+                    // Draw particle
+                    ctx.globalAlpha = particle.life;
+                    ctx.fillStyle = particle.color;
+                    
+                    if (particle.type === 'circle') {
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else if (particle.type === 'star') {
+                        this.drawStar(ctx, particle.x, particle.y, 5, particle.size, particle.size / 2);
+                    } else if (particle.type === 'triangle') {
+                        this.drawPolygon(ctx, particle.x, particle.y, 3, particle.size);
+                    } else if (particle.type === 'square') {
+                        ctx.fillRect(
+                            particle.x - particle.size / 2,
+                            particle.y - particle.size / 2,
+                            particle.size,
+                            particle.size
+                        );
+                    }
+                }
+                
+                // Continue animation if particles exist
+                if (this.particleSystem.particles.length > 0) {
+                    requestAnimationFrame(() => this.particleSystem.animate());
+                }
+            },
+            
+            emit: (config) => {
+                if (!this.particleSystem.initialized) return;
+                
+                const defaults = {
+                    x: this.particleSystem.canvas.width / 2,
+                    y: this.particleSystem.canvas.height / 2,
+                    count: 20,
+                    speed: 2,
+                    size: 5,
+                    colors: ['#667eea', '#764ba2', '#f093fb', '#f5576c'],
+                    types: ['circle', 'star', 'triangle', 'square'],
+                    spread: 360,
+                    direction: 0,
+                    gravity: 0.05,
+                    life: 1,
+                    decay: 0.02
+                };
+                
+                const options = { ...defaults, ...config };
+                
+                // Create particles
+                for (let i = 0; i < options.count; i++) {
+                    // Calculate angle based on spread and direction
+                    const angle = (options.direction - options.spread / 2) + 
+                        Math.random() * options.spread;
+                    
+                    // Calculate velocity based on angle and speed
+                    const rad = angle * Math.PI / 180;
+                    const speed = options.speed * (0.5 + Math.random() * 0.5);
+                    
+                    this.particleSystem.particles.push({
+                        x: options.x,
+                        y: options.y,
+                        vx: Math.cos(rad) * speed,
+                        vy: Math.sin(rad) * speed,
+                        gravity: options.gravity * (0.5 + Math.random()),
+                        size: options.size * (0.5 + Math.random()),
+                        color: options.colors[Math.floor(Math.random() * options.colors.length)],
+                        type: options.types[Math.floor(Math.random() * options.types.length)],
+                        life: options.life * (0.8 + Math.random() * 0.4),
+                        decay: options.decay * (0.8 + Math.random() * 0.4)
+                    });
+                }
+                
+                // Start animation if not already running
+                if (this.particleSystem.particles.length > 0 && !this.animationFrame) {
+                    this.animationFrame = requestAnimationFrame(() => this.particleSystem.animate());
+                }
+            },
+            
+            destroy: () => {
+                if (this.particleSystem.canvas && this.particleSystem.targetElement) {
+                    this.particleSystem.targetElement.removeChild(this.particleSystem.canvas);
+                }
+                
+                this.particleSystem.particles = [];
+                this.particleSystem.initialized = false;
+                
+                if (this.animationFrame) {
+                    cancelAnimationFrame(this.animationFrame);
+                    this.animationFrame = null;
+                }
+            }
+        };
+    }
+    
+    // Global functions for HTML onclick handlers
+    toggleSettings() {
+        const details = document.querySelector('.settings-details');
+        if (details) {
+            details.toggleAttribute('open');
+            const isOpen = details.hasAttribute('open');
+            document.getElementById('settingsToggle').setAttribute('aria-expanded', isOpen);
+        }
+    }
 
 function clearConsole() {
     const console = document.getElementById('console');
