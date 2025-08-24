@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <!-- Essential Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#667eea">
+    <meta name="color-scheme" content="light dark">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Apple Sider">
+    
+    <!-- Primary Meta Tags -->
+    <title>Apple Sider - One Click To Download Your Entire Music Library as MP3s</title>
+    <meta name="title" content="Apple Sider - One Click To Download Your Entire Music Library as MP3s">
+    <meta name="description" content="Transform your Apple Music Library.xml into high-quality MP3 downloads. Simple drag-and-drop interface with real-time progress tracking and smart metadata enhancement.">
+    <meta name="keywords" content="apple music, music downloader, mp3, library converter, CLI music downloader, apple sider">
+    <meta name="author" content="Jordan Lang">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍎</text></svg>">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Skip Navigation Link for Screen Readers -->
+    <a href="#main-content" class="skip-link" aria-label="Skip to main content">Skip to main content</a>
+    
+    <!-- Theme Toggle Button -->
+    <button 
+        id="themeToggle" 
+        class="theme-toggle" 
+        aria-label="Toggle dark mode"
+        role="switch"
+        aria-checked="false"
+        title="Toggle between light and dark themes"
+    >
+        <svg class="theme-icon theme-icon--light" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"></path>
+        </svg>
+        <svg class="theme-icon theme-icon--dark" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M17.25 16.22a6.937 6.937 0 01-9.47-9.47 7.451 7.451 0 1010.47 10.47zM12.75 7C17 7 17 2.75 17 2.75S17 7 21.25 7C17 7 17 11.25 17 11.25S17 7 12.75 7z"></path>
+        </svg>
+    </button>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header" role="banner">
+            <div class="logo">
+                <span class="logo-icon" aria-hidden="true" role="img" aria-label="Apple icon">🍎</span>
+                <h1 class="logo-text">
+                    <span class="sr-only">Apple Sider - </span>Apple Sider
+                </h1>
+            </div>
+            <p class="tagline">One Click To Download Your Entire Music Library as MP3s</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main" id="main-content" role="main">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection" aria-label="File upload section">
+                <article class="upload-zone" 
+                    id="uploadZone" 
+                    role="button" 
+                    tabindex="0" 
+                    aria-label="Upload your Library.xml file by dragging and dropping or clicking to browse"
+                    aria-describedby="upload-instructions"
+                >
+                    <div class="upload-icon" aria-hidden="true" role="img" aria-label="Folder icon">📁</div>
+                    <h3 id="upload-title">Upload Your Library.xml</h3>
+                    <p id="upload-instructions">Drag and drop your Apple Music Library.xml file here, or click to browse</p>
+                    <input 
+                        type="file" 
+                        id="fileInput" 
+                        accept=".xml,application/xml,text/xml" 
+                        hidden 
+                        aria-label="Select Library.xml file"
+                    >
+                    <button 
+                        class="browse-btn" 
+                        type="button"
+                        onclick="document.getElementById('fileInput').click()"
+                        aria-describedby="upload-instructions"
+                    >
+                        <span class="button-text">Browse Files</span>
+                        <span class="button-icon" aria-hidden="true">📂</span>
+                    </button>
+                </article>
+                
+                <aside class="upload-info" role="complementary" aria-labelledby="info-title">
+                    <h4 id="info-title">How to get Library.xml:</h4>
+                    <ol role="list">
+                        <li role="listitem">Open Apple Music/iTunes</li>
+                        <li role="listitem">Go to File → Library → Export Library...</li>
+                        <li role="listitem">Save as Library.xml</li>
+                        <li role="listitem">Upload the file here</li>
+                    </ol>
+                </aside>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="settings-section" aria-label="Application settings">
+                <div class="settings-box">
+                    <h3 class="settings-title">
+                        <span class="section-icon" aria-hidden="true" role="img" aria-label="Settings icon">⚙️</span>
+                        Settings
+                    </h3>
+                    
+                    <form class="settings-form" role="form" aria-labelledby="settings-title">
+                        <div class="setting-group">
+                            <label for="downloadLocation" class="setting-label">
+                                Download Location:
+                                <span class="label-help" aria-describedby="location-help">ℹ️</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="downloadLocation" 
+                                value="~/Music/Apple-Sider" 
+                                class="setting-input"
+                                aria-describedby="location-help"
+                            >
+                            <div id="location-help" class="setting-help">Path where downloaded files will be saved</div>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="folderStructure" class="setting-label">
+                                Folder Structure:
+                                <span class="label-help" aria-describedby="structure-help">ℹ️</span>
+                            </label>
+                            <select 
+                                id="folderStructure" 
+                                class="setting-select"
+                                aria-describedby="structure-help"
+                            >
+                                <option value="flat">Flat (Artist-Song.mp3)</option>
+                                <option value="nested">Nested (Artist/Song.mp3)</option>
+                            </select>
+                            <div id="structure-help" class="setting-help">How files are organized in folders</div>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="concurrentDownloads" class="setting-label">
+                                Concurrent Downloads:
+                                <span class="label-help" aria-describedby="concurrent-help">ℹ️</span>
+                            </label>
+                            <input 
+                                type="number" 
+                                id="concurrentDownloads" 
+                                min="1" 
+                                max="10" 
+                                value="3" 
+                                class="setting-input"
+                                aria-describedby="concurrent-help"
+                            >
+                            <div id="concurrent-help" class="setting-help">Number of simultaneous downloads (1-10)</div>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="metadataSource" class="setting-label">
+                                Metadata Source:
+                                <span class="label-help" aria-describedby="metadata-help">ℹ️</span>
+                            </label>
+                            <select 
+                                id="metadataSource" 
+                                class="setting-select"
+                                aria-describedby="metadata-help"
+                            >
+                                <option value="all">All Sources</option>
+                                <option value="musicbrainz">MusicBrainz Only</option>
+                                <option value="skip-metadata">Skip Metadata</option>
+                            </select>
+                            <div id="metadata-help" class="setting-help">Where to get song information and artwork</div>
+                        </div>
+                        
+                        <div class="setting-actions" role="group" aria-label="Settings actions">
+                            <button 
+                                class="setting-btn" 
+                                type="button"
+                                id="saveSettingsBtn"
+                                aria-describedby="save-help"
+                            >
+                                <span class="button-icon" aria-hidden="true">💾</span>
+                                <span class="button-text">Save Settings</span>
+                            </button>
+                            <button 
+                                class="setting-btn setting-btn--secondary" 
+                                type="button"
+                                id="resetSettingsBtn"
+                                aria-describedby="reset-help"
+                            >
+                                <span class="button-icon" aria-hidden="true">🔄</span>
+                                <span class="button-text">Reset Defaults</span>
+                            </button>
+                            <div id="save-help" class="sr-only">Save current settings to local storage</div>
+                            <div id="reset-help" class="sr-only">Reset all settings to default values</div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Library Info Section -->
+            <section 
+                class="library-info" 
+                id="libraryInfo" 
+                style="display: none;" 
+                aria-label="Library analysis results"
+                role="region"
+            >
+                <article class="info-card" role="article">
+                    <header>
+                        <h3 id="analysis-title">
+                            <span class="section-icon" aria-hidden="true" role="img" aria-label="Chart icon">📊</span>
+                            Library Analysis
+                        </h3>
+                    </header>
+                    
+                    <div class="stats" role="group" aria-labelledby="analysis-title">
+                        <div class="stat" role="img" aria-labelledby="total-tracks-label">
+                            <span class="stat-number" id="totalTracks" aria-live="polite">0</span>
+                            <span class="stat-label" id="total-tracks-label">Total Tracks</span>
+                        </div>
+                        <div class="stat" role="img" aria-labelledby="valid-tracks-label">
+                            <span class="stat-number" id="validTracks" aria-live="polite">0</span>
+                            <span class="stat-label" id="valid-tracks-label">Valid Music</span>
+                        </div>
+                        <div class="stat" role="img" aria-labelledby="estimated-hours-label">
+                            <span class="stat-number" id="estimatedHours" aria-live="polite">0</span>
+                            <span class="stat-label" id="estimated-hours-label">Estimated Hours</span>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        class="start-btn" 
+                        id="startDownload"
+                        type="button"
+                        aria-describedby="analysis-title"
+                    >
+                        <span class="button-icon" aria-hidden="true">🚀</span>
+                        <span class="button-text">Start Download</span>
+                    </button>
+                </article>
+            </section>
+
+            <!-- Progress Section -->
+            <section 
+                class="progress-section" 
+                id="progressSection" 
+                style="display: none;" 
+                aria-label="Download progress tracking"
+                role="region"
+            >
+                <article class="progress-card" role="article">
+                    <header>
+                        <h3 id="progress-title">
+                            <span class="section-icon" aria-hidden="true" role="img" aria-label="Chart icon">📈</span>
+                            Download Progress
+                        </h3>
+                    </header>
+                    
+                    <div class="progress-container" role="group" aria-labelledby="progress-title">
+                        <div 
+                            class="progress-bar" 
+                            role="progressbar" 
+                            aria-valuenow="0" 
+                            aria-valuemin="0" 
+                            aria-valuemax="100"
+                            aria-labelledby="progress-title"
+                            aria-describedby="progress-text"
+                        >
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                            <span class="progress-text" id="progressText" aria-live="polite">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-stats" role="group" aria-label="Download statistics">
+                        <div class="progress-stat" role="img" aria-labelledby="completed-label">
+                            <span id="completedCount" aria-live="polite">0</span>
+                            <span id="completed-label">completed</span>
+                        </div>
+                        <div class="progress-stat" role="img" aria-labelledby="active-label">
+                            <span id="activeCount" aria-live="polite">0</span>
+                            <span id="active-label">active</span>
+                        </div>
+                        <div class="progress-stat" role="img" aria-labelledby="queued-label">
+                            <span id="queuedCount" aria-live="polite">0</span>
+                            <span id="queued-label">queued</span>
+                        </div>
+                        <div class="progress-stat" role="img" aria-labelledby="failed-label">
+                            <span id="failedCount" aria-live="polite">0</span>
+                            <span id="failed-label">failed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-actions" role="group" aria-label="Download control actions">
+                        <button 
+                            class="action-btn" 
+                            id="pauseBtn" 
+                            type="button"
+                            aria-pressed="false"
+                        >
+                            <span class="button-icon" aria-hidden="true">⏸️</span>
+                            <span class="button-text">Pause</span>
+                        </button>
+                        <button 
+                            class="action-btn" 
+                            id="retryBtn" 
+                            type="button"
+                            aria-describedby="failed-label"
+                        >
+                            <span class="button-icon" aria-hidden="true">🔄</span>
+                            <span class="button-text">Retry Failed</span>
+                        </button>
+                        <button 
+                            class="action-btn danger" 
+                            id="clearBtn" 
+                            type="button"
+                            aria-describedby="clear-warning"
+                        >
+                            <span class="button-icon" aria-hidden="true">🗑️</span>
+                            <span class="button-text">Clear Queue</span>
+                        </button>
+                        <div id="clear-warning" class="sr-only">This will remove all queued downloads</div>
+                    </div>
+                </article>
+            </section>
+
+            <!-- Console Section -->
+            <section 
+                class="console-section" 
+                aria-label="Console output and logs"
+            >
+                <header class="console-header">
+                    <h3 id="console-title">
+                        <span class="section-icon" aria-hidden="true" role="img" aria-label="Console icon">📟</span>
+                        Console Output
+                    </h3>
+                    <div class="console-actions" role="group" aria-label="Console controls">
+                        <button 
+                            class="console-btn" 
+                            type="button"
+                            id="clearConsoleBtn"
+                            aria-label="Clear console output"
+                            title="Clear all console messages"
+                        >
+                            <span class="button-icon" aria-hidden="true">🗑️</span>
+                            <span class="button-text">Clear</span>
+                        </button>
+                        <button 
+                            class="console-btn" 
+                            type="button"
+                            id="toggleAutoScrollBtn"
+                            aria-pressed="true"
+                            aria-label="Toggle automatic scrolling"
+                            title="Toggle automatic scrolling to new messages"
+                        >
+                            <span class="button-icon" aria-hidden="true">📜</span>
+                            <span class="button-text">Auto-scroll: </span>
+                            <span id="autoScrollStatus" aria-live="polite">ON</span>
+                        </button>
+                    </div>
+                </header>
+                
+                <div 
+                    class="console" 
+                    id="console" 
+                    role="log" 
+                    aria-live="polite" 
+                    aria-labelledby="console-title"
+                    tabindex="0"
+                    aria-describedby="console-help"
+                >
+                    <div class="console-line welcome" role="status">
+                        <span class="console-timestamp" aria-label="Timestamp">🍎</span>
+                        <span class="console-message">Apple Sider Ready - Upload your Library.xml to begin</span>
+                    </div>
+                </div>
+                <div id="console-help" class="sr-only">Console showing real-time application status and download progress</div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer" role="contentinfo">
+            <p>
+                Built with <span aria-label="love" role="img">❤️</span> using 
+                <a 
+                    href="https://github.com/jordolang/CLI-Music-Downloader" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    aria-label="CLI-Music-Downloader GitHub repository (opens in new tab)"
+                >CLI-Music-Downloader</a>
+            </p>
+            <p class="footer-credits">
+                <a 
+                    href="https://jordolang.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    aria-label="Visit Jordan Lang's website (opens in new tab)"
+                >Created by Jordan Lang</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div 
+        class="loading-overlay" 
+        id="loadingOverlay" 
+        style="display: none;" 
+        role="dialog" 
+        aria-modal="true" 
+        aria-labelledby="loading-title" 
+        aria-describedby="loading-description"
+    >
+        <div class="loading-content">
+            <div class="loading-spinner" role="img" aria-label="Loading spinner animation"></div>
+            <h2 id="loading-title" class="loading-title">Processing Library.xml</h2>
+            <p id="loading-description" class="loading-description" aria-live="polite">
+                Please wait while we analyze your music library...
+            </p>
+        </div>
+    </div>
+    
+    <!-- Notification System -->
+    <div 
+        id="notificationContainer" 
+        class="notification-container" 
+        role="region" 
+        aria-label="Notifications" 
+        aria-live="polite"
+    >
+        <!-- Dynamic notifications will be inserted here -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

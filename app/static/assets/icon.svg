@@ -1,0 +1,73 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="appleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1">
+        <animate attributeName="stop-color" values="#667eea;#764ba2;#f093fb;#f5576c;#667eea" dur="8s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1">
+        <animate attributeName="stop-color" values="#764ba2;#f093fb;#f5576c;#667eea;#764ba2" dur="8s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1">
+        <animate attributeName="stop-color" values="#f093fb;#f5576c;#667eea;#764ba2;#f093fb" dur="8s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Apple body -->
+  <path d="M50 85 C 25 85, 15 65, 15 50 C 15 30, 30 15, 50 15 C 70 15, 85 30, 85 50 C 85 65, 75 85, 50 85 Z" 
+        fill="url(#appleGradient)" 
+        filter="url(#shadow) url(#glow)"
+        stroke="rgba(255,255,255,0.3)" 
+        stroke-width="1">
+    <animateTransform attributeName="transform" type="scale" values="1;1.05;1" dur="4s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Apple bite -->
+  <circle cx="65" cy="40" r="12" fill="white" opacity="0.9">
+    <animate attributeName="opacity" values="0.9;0.7;0.9" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Apple stem -->
+  <rect x="48" y="10" width="4" height="8" fill="#4a5d23" rx="2">
+    <animateTransform attributeName="transform" type="rotate" values="0 50 10;-10 50 10;10 50 10;0 50 10" dur="6s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Apple leaf -->
+  <ellipse cx="56" cy="12" rx="6" ry="3" fill="#4a5d23" transform="rotate(30 56 12)">
+    <animateTransform attributeName="transform" type="rotate" values="30 56 12;20 56 12;40 56 12;30 56 12" dur="6s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- Sparkle effects -->
+  <g opacity="0.6">
+    <circle cx="30" cy="35" r="1.5" fill="white">
+      <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <circle cx="70" cy="25" r="1" fill="white">
+      <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+    </circle>
+    <circle cx="35" cy="60" r="1.2" fill="white">
+      <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+    </circle>
+    <circle cx="65" cy="65" r="0.8" fill="white">
+      <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+    </circle>
+  </g>
+  
+  <!-- Subtle pulse ring -->
+  <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1">
+    <animate attributeName="r" values="45;50;45" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.1;0;0.1" dur="4s" repeatCount="indefinite"/>
+  </circle>
+</svg>
