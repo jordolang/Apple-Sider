@@ -644,20 +644,13 @@ class AppleSider {
         
         if (retryBtn) {
             retryBtn.addEventListener('click', () => {
-                this.playSoundEffect('click');
                 this.retryFailed();
             });
         }
         
         if (clearBtn) {
             clearBtn.addEventListener('click', () => {
-                // Use custom confirmation dialog instead of built-in confirm
-                this.showConfirmDialog(
-                    'Clear Download Queue', 
-                    'Are you sure you want to clear the entire download queue? This action cannot be undone.',
-                    () => this.clearQueue(),
-                    'Clear Queue', 'Cancel'
-                );
+                this.clearQueue();
             });
         }
     }
@@ -725,8 +718,8 @@ class AppleSider {
         }
         
         // Save and reset buttons
-        const saveSettingsBtn = document.querySelector('[data-testid="save-settings"]');
-        const resetSettingsBtn = document.querySelector('[data-testid="reset-settings"]');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const resetSettingsBtn = document.getElementById('resetSettingsBtn');
         
         if (saveSettingsBtn) {
             saveSettingsBtn.addEventListener('click', () => this.saveSettings());
@@ -741,8 +734,8 @@ class AppleSider {
      * Setup console controls with enhanced functionality
      */
     setupConsoleControls() {
-        const clearConsoleBtn = document.querySelector('[data-testid="clear-console"]');
-        const toggleAutoScrollBtn = document.querySelector('[data-testid="toggle-autoscroll"]');
+        const clearConsoleBtn = document.getElementById('clearConsoleBtn');
+        const toggleAutoScrollBtn = document.getElementById('toggleAutoScrollBtn');
         const consoleOutput = document.getElementById('console');
         
         if (clearConsoleBtn) {
@@ -1116,6 +1109,45 @@ class AppleSider {
                 }
             }
         };
+    }
+    
+    // Console methods
+    clearConsole() {
+        const console = document.getElementById('console');
+        if (console) {
+            console.innerHTML = '';
+            this.addConsoleLine('🧹 Console cleared', 'info');
+        }
+    }
+    
+    toggleAutoScroll() {
+        this.autoScroll = !this.autoScroll;
+        const status = document.getElementById('autoScrollStatus');
+        if (status) {
+            status.textContent = this.autoScroll ? 'ON' : 'OFF';
+        }
+        this.addConsoleLine(`📜 Auto-scroll ${this.autoScroll ? 'enabled' : 'disabled'}`, 'info');
+    }
+    
+    // Utility methods
+    copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+            document.body.removeChild(textArea);
+        }
     }
     
     // Global functions for HTML onclick handlers
