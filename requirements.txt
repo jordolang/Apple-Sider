@@ -1,0 +1,35 @@
+# Apple Sider - Python Dependencies
+
+# Core Flask application
+Flask==3.0.0
+flask-socketio==5.3.6
+python-socketio==5.10.0
+python-engineio==4.7.1
+
+# File handling
+Werkzeug==3.0.1
+
+# JSON and data processing
+requests==2.31.0
+
+# CLI-Music-Downloader dependencies (if bundling)
+# Note: These are included for completeness but CLI-Music-Downloader
+# should be installed separately or included in Docker image
+
+# instantmusic dependencies
+youtube-dl>=2021.12.17
+yt-dlp>=2023.7.6
+
+# Metadata and tagging
+eyed3>=0.9.7
+mutagen>=1.47.0
+
+# Enhanced metadata dependencies
+musicbrainzngs>=0.7.1
+lyricsgenius>=3.0.1
+pylast>=5.0.0
+discogs-client>=2.3.15
+shazamio>=0.4.0.1
+
+# System utilities
+pathlib2>=2.3.7; python_version < '3.4'

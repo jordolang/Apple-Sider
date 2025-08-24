@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  apple-sider:
+    build: .
+    container_name: apple-sider
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount music directory for downloads
+      - ~/Music/Apple-Sider:/app/downloads
+      # Mount config directory for persistence
+      - ./config:/app/config
+      # Mount CLI-Music-Downloader from host (optional - comment out if using bundled version)
+      - ~/Repos/CLI-Music-Downloader:/app/cli-music-downloader:ro
+    environment:
+      - CLI_MUSIC_DOWNLOADER_PATH=/app/cli-music-downloader/bin/download_music
+      - DOWNLOAD_PATH=/app/downloads
+      - CONFIG_PATH=/app/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

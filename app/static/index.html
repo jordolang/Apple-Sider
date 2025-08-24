@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Sider - One Click To Scrape Your Entire Library as MP3's</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍎</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🍎</span>
+                <h1 class="logo-text">Apple Sider</h1>
+            </div>
+            <p class="tagline">One Click To Scrape Your Entire Library as MP3's</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Upload Section -->
+            <section class="upload-section" id="uploadSection">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <h3>Upload Your Library.xml</h3>
+                    <p>Drag and drop your Apple Music Library.xml file here, or click to browse</p>
+                    <input type="file" id="fileInput" accept=".xml" hidden>
+                    <button class="browse-btn" onclick="document.getElementById('fileInput').click()">
+                        Browse Files
+                    </button>
+                </div>
+                <div class="upload-info">
+                    <p><strong>How to get Library.xml:</strong></p>
+                    <ol>
+                        <li>Open Apple Music/iTunes</li>
+                        <li>Go to File → Library → Export Library...</li>
+                        <li>Save as Library.xml</li>
+                        <li>Upload the file here</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Library Info Section -->
+            <section class="library-info" id="libraryInfo" style="display: none;">
+                <div class="info-card">
+                    <h3>📊 Library Analysis</h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-number" id="totalTracks">0</span>
+                            <span class="stat-label">Total Tracks</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="validTracks">0</span>
+                            <span class="stat-label">Valid Music</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="estimatedHours">0</span>
+                            <span class="stat-label">Estimated Hours</span>
+                        </div>
+                    </div>
+                    <button class="start-btn" id="startDownload">
+                        🚀 Start Download
+                    </button>
+                </div>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="progress-section" id="progressSection" style="display: none;">
+                <div class="progress-card">
+                    <h3>📈 Download Progress</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        <span class="progress-text" id="progressText">0%</span>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <span id="completedCount">0</span> completed
+                        </div>
+                        <div class="progress-stat">
+                            <span id="activeCount">0</span> active
+                        </div>
+                        <div class="progress-stat">
+                            <span id="queuedCount">0</span> queued
+                        </div>
+                        <div class="progress-stat">
+                            <span id="failedCount">0</span> failed
+                        </div>
+                    </div>
+                    <div class="progress-actions">
+                        <button class="action-btn" id="pauseBtn">⏸️ Pause</button>
+                        <button class="action-btn" id="retryBtn">🔄 Retry Failed</button>
+                        <button class="action-btn danger" id="clearBtn">🗑️ Clear Queue</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="settings-section">
+                <div class="settings-header" onclick="toggleSettings()">
+                    <h3>⚙️ Settings</h3>
+                    <span class="settings-toggle" id="settingsToggle">▼</span>
+                </div>
+                <div class="settings-content" id="settingsContent">
+                    <div class="setting-group">
+                        <label>Download Location:</label>
+                        <input type="text" id="downloadLocation" value="~/Music/Apple-Sider" class="setting-input">
+                    </div>
+                    <div class="setting-group">
+                        <label>Folder Structure:</label>
+                        <select id="folderStructure" class="setting-select">
+                            <option value="flat">Flat (Artist-Song.mp3)</option>
+                            <option value="nested">Nested (Artist/Song.mp3)</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>Concurrent Downloads:</label>
+                        <input type="number" id="concurrentDownloads" min="1" max="10" value="3" class="setting-input">
+                    </div>
+                    <div class="setting-group">
+                        <label>Metadata Source:</label>
+                        <select id="metadataSource" class="setting-select">
+                            <option value="all">All Sources</option>
+                            <option value="musicbrainz">MusicBrainz Only</option>
+                            <option value="skip-metadata">Skip Metadata</option>
+                        </select>
+                    </div>
+                    <div class="setting-actions">
+                        <button class="setting-btn" onclick="saveSettings()">💾 Save Settings</button>
+                        <button class="setting-btn" onclick="resetSettings()">🔄 Reset Defaults</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Console Section -->
+            <section class="console-section">
+                <div class="console-header">
+                    <h3>📟 Console Output</h3>
+                    <div class="console-actions">
+                        <button class="console-btn" onclick="clearConsole()">🗑️ Clear</button>
+                        <button class="console-btn" onclick="toggleAutoScroll()">📜 Auto-scroll: <span id="autoScrollStatus">ON</span></button>
+                    </div>
+                </div>
+                <div class="console" id="console">
+                    <div class="console-line welcome">🍎 Apple Sider Ready - Upload your Library.xml to begin</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with ❤️ using <a href="https://github.com/yourusername/CLI-Music-Downloader" target="_blank">CLI-Music-Downloader</a></p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>Processing Library.xml...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
