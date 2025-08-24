@@ -1,14 +1,5 @@
 <div align="center">
-  <img src="logo.png" alt="Apple Sider Logo" width="200" height="200">
-</div>
-
-
-<div align="center">
-  <img src="logo.png" alt="Apple Sider Logo" width="200" height="200">
-</div>
-
-<div align="center">
-  <img src="logo.png" alt="Apple Sider Logo" width="200" height="200">
+  <img src="logo.png" alt="Apple Sider Logo" width="900" height="500">
 </div>
 
 # Apple Sider
