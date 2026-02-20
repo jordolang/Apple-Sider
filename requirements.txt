@@ -7,7 +7,7 @@ python-socketio==5.10.0
 python-engineio>=4.8.0
 
 # File handling
-Werkzeug==3.0.1
+Werkzeug==3.1.6
 
 # JSON and data processing
 requests==2.31.0
